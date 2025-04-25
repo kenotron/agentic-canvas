@@ -35,3 +35,10 @@ Development Workflow:
 4. Preview production build: `pnpm preview`
 
 This file provides context for language models and new contributors to understand the repository layout and core components.
+
+## Tech stack
+
+* Front end is React
+* Bundler is Vite
+* state management library is [legend-state](https://github.com/LegendApp/legend-state)
+  * The document site for Legend State is located in a [separate repository](https://github.com/LegendApp/legend-docs/tree/main/packages/state/src/content/docs)
