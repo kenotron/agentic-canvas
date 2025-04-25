@@ -7,6 +7,8 @@ This repository contains a React-based infinite canvas application that enables 
 Directory Structure:
   ├── index.html           - HTML entry point (root, used by Vite)
   ├── public/              - (optional) static assets (served at '/'), e.g., favicon.ico
+  ├── docs/
+  │   └── adr/             - Architecture Decision Records
   └── src/
       ├── assets/              - static assets imported in code (images, icons, fonts)
       ├── state/               - Legend State v3 beta stores (e.g., canvasStore.ts)
@@ -16,7 +18,7 @@ Directory Structure:
          ├── Sidebar/           - optional panels (layers, properties)
          └── common/            - shared UI elements (Buttons, Icons, Modals)
       ├── context/             - React Context providers (CanvasContext)
-      ├── hooks/               - custom hooks (usePanZoom, useDraw, useCanvasEvents)
+      ├── hooks/               - custom hooks (usePanZoom, useDraggable)
       ├── utils/               - pure helper functions and math operations
       ├── types/               - shared TypeScript type definitions
       └── styles/              - global styles, CSS reset, theming
@@ -38,7 +40,37 @@ This file provides context for language models and new contributors to understan
 
 ## Tech stack
 
-* Front end is React
-* Bundler is Vite
-* state management library is [legend-state](https://github.com/LegendApp/legend-state)
+* Front end is React (v19)
+* Bundler is Vite (v6)
+* State management library is [legend-state](https://github.com/LegendApp/legend-state) v3 beta
   * The document site for Legend State is located in a [separate repository](https://github.com/LegendApp/legend-docs/tree/main/packages/state/src/content/docs)
+
+## Design Decisions
+
+### Canvas Architecture
+The canvas implementation uses DOM-based elements rather than Canvas/WebGL rendering:
+- Nodes are standard DOM elements with absolute positioning
+- Transformations (pan/zoom) use CSS transforms for hardware acceleration
+- This approach enables rich interactions, accessibility, and easier styling
+- See ADR-002 for detailed reasoning
+
+### Component Architecture
+- Core Canvas component manages the viewport and transformation
+- CanvasNode components represent individual elements in the canvas
+- Components leverage Legend State for efficient updates
+- Observer pattern used to minimize re-renders
+
+### Interaction Model
+- Custom hooks abstract interaction behaviors:
+  - usePanZoom: Manages canvas viewport manipulation
+  - useDraggable: Provides element dragging capabilities
+- Coordinate systems are clearly separated:
+  - Screen coordinates: Relative to viewport
+  - Canvas coordinates: Relative to the infinite canvas
+- See ADR-003 for details on our hooks-based approach
+
+### Performance Considerations
+- CSS transforms used for hardware-accelerated animations
+- Fine-grained reactivity with Legend State
+- Event handlers optimized to minimize unnecessary calculations
+- State updates are batched where possible

@@ -1,42 +1,87 @@
 #root {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
-  text-align: center;
+  width: 100%;
+  height: 100vh;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
 }
 
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
-}
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
-}
-.logo.react:hover {
-  filter: drop-shadow(0 0 2em #61dafbaa);
+.app {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  width: 100%;
+  overflow: hidden;
 }
 
-@keyframes logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+.app-header {
+  padding: 8px 16px;
+  background-color: #ffffff;
+  border-bottom: 1px solid #e1e4e8;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  a:nth-of-type(2) .logo {
-    animation: logo-spin infinite 20s linear;
-  }
+.app-header h1 {
+  margin: 0;
+  padding: 0;
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #24292e;
 }
 
-.card {
-  padding: 2em;
+.toolbar {
+  display: flex;
+  align-items: center;
+  margin-top: 8px;
 }
 
-.read-the-docs {
-  color: #888;
+.tool-group {
+  display: flex;
+  margin-right: 20px;
+}
+
+.tool-button {
+  background-color: #f6f8fa;
+  border: 1px solid #e1e4e8;
+  color: #24292e;
+  padding: 6px 12px;
+  font-size: 14px;
+  border-radius: 4px;
+  margin-right: 8px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.tool-button:hover {
+  background-color: #eef1f5;
+}
+
+.tool-button.active {
+  background-color: #0366d6;
+  color: white;
+  border-color: #0366d6;
+}
+
+.zoom-info {
+  margin-left: auto;
+  font-size: 14px;
+  color: #586069;
+}
+
+.canvas-container {
+  flex: 1;
+  overflow: hidden;
+  background-color: #f8f9fa;
+}
+
+.selection-info {
+  position: fixed;
+  bottom: 16px;
+  left: 16px;
+  background-color: rgba(255, 255, 255, 0.9);
+  padding: 8px 12px;
+  border-radius: 4px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  font-size: 14px;
+  color: #24292e;
+  z-index: 100;
 }
