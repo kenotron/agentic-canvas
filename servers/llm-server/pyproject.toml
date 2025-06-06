@@ -1,7 +1,45 @@
 [project]
 name = "llm-server"
 version = "0.1.0"
-description = "Add your description here"
+description = "LLM server with OpenAI compatibility and agent capabilities"
 readme = "README.md"
 requires-python = ">=3.12"
-dependencies = []
+dependencies = [
+    "fastapi[standard]>=0.115.0",
+    "litellm[proxy]>=1.52.0",
+    "langgraph>=0.2.50",
+    "langchain-anthropic>=0.2.0",
+    "langchain-openai>=0.2.0",
+    "langchain-community>=0.3.0",
+    "tavily-python>=0.5.0",
+    "pydantic>=2.9.0",
+    "python-multipart>=0.0.12",
+    "uvicorn[standard]>=0.32.0",
+    "python-dotenv>=1.0.0",
+    "httpx>=0.28.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0.0",
+    "pytest-asyncio>=0.24.0",
+    "black>=24.0.0",
+    "ruff>=0.8.0",
+    "mypy>=1.13.0",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.black]
+line-length = 88
+target-version = ['py312']
+
+[tool.ruff]
+line-length = 88
+target-version = "py312"
+
+[tool.mypy]
+python_version = "3.12"
+strict = true
