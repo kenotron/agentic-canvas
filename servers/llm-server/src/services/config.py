@@ -8,7 +8,7 @@ class Settings(BaseSettings):
     """Application settings"""
     
     # API Keys
-    anthropic_api_key: str
+    anthropic_api_key: str = ""
     openai_api_key: str = ""
     tavily_api_key: str = ""
     github_token: str = ""

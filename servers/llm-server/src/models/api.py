@@ -19,6 +19,8 @@ class ChatCompletionRequest(BaseModel):
     max_tokens: Optional[int] = Field(default=None, gt=0)
     top_p: Optional[float] = Field(default=1.0, ge=0, le=1)
     stream: Optional[bool] = False
+    frequency_penalty: Optional[float] = Field(default=0.0, ge=-2, le=2)
+    presence_penalty: Optional[float] = Field(default=0.0, ge=-2, le=2)
     tools: Optional[List[Dict[str, Any]]] = None
     tool_choice: Optional[Union[str, Dict[str, Any]]] = None
     user: Optional[str] = None
@@ -85,6 +87,30 @@ class GitHubSearchRequest(BaseModel):
     type: Literal["repositories", "issues", "code"] = "repositories"
     sort: Optional[str] = None
     order: Optional[Literal["asc", "desc"]] = "desc"
+
+# OpenAI Responses API models
+class ResponseRequest(BaseModel):
+    """Request body for creating a response (OpenAI Responses API compatible)"""
+    response: str = Field(..., description="The response content to log")
+    conversation_id: Optional[str] = Field(None, description="The conversation this response belongs to")
+    parent_message_id: Optional[str] = Field(None, description="The message this is a response to")
+    metadata: Optional[Dict[str, Any]] = Field(None, description="Additional metadata")
+
+class ResponseObject(BaseModel):
+    """Response object (OpenAI Responses API compatible)"""
+    id: str = Field(..., description="Unique identifier for the response")
+    object: str = Field(default="response", description="Object type")
+    created: int = Field(..., description="Unix timestamp of creation")
+    response: str = Field(..., description="The response content")
+    conversation_id: Optional[str] = Field(None, description="The conversation this response belongs to")
+    parent_message_id: Optional[str] = Field(None, description="The message this is a response to")
+    metadata: Optional[Dict[str, Any]] = Field(None, description="Additional metadata")
+
+class ResponseList(BaseModel):
+    """List of responses (OpenAI Responses API compatible)"""
+    object: str = Field(default="list")
+    data: List[ResponseObject]
+    has_more: bool = Field(default=False)
 
 class ErrorResponse(BaseModel):
     error: str

@@ -26,9 +26,17 @@ class AgentService:
     
     def __init__(self):
         self.settings = get_settings()
-        self.llm = self._get_llm()
+        self.llm = None
         self.tools = self._get_tools()
-        self.agent = self._create_agent()
+        self.agent = None
+        
+        # Only initialize LLM and agent if API keys are available
+        try:
+            self.llm = self._get_llm()
+            self.agent = self._create_agent()
+        except ValueError as e:
+            print(f"Warning: Agent service not fully initialized - {e}")
+            print("Server will run but agent features will be disabled until API keys are configured.")
     
     def _get_llm(self):
         """Initialize the LLM based on available API keys"""
@@ -97,8 +105,8 @@ When using tools:
         return agent
     
     async def chat(
-        self, 
-        messages: List[dict], 
+        self,
+        messages: List[dict],
         conversation_id: str = None,
         user_context: dict = None
     ) -> dict:
@@ -113,6 +121,17 @@ When using tools:
         Returns:
             Agent response with tool calls and state
         """
+        
+        # Check if agent is initialized
+        if self.agent is None:
+            return {
+                "content": "Agent service is not available. Please configure API keys (ANTHROPIC_API_KEY or OPENAI_API_KEY) in the .env file to enable chat functionality.",
+                "tool_calls": [],
+                "agent_state": {
+                    "error": "Agent not initialized - missing API keys",
+                    "conversation_id": conversation_id
+                }
+            }
         
         # Convert messages to LangChain format
         lc_messages = []

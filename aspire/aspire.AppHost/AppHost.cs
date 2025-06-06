@@ -4,7 +4,7 @@
 var builder = DistributedApplication.CreateBuilder(args);
 
 // Add the Python UV LLM Server using Community Toolkit
-var llmServer = builder.AddUvApp("llm-server", "../../servers/llm-server", "run", "uvicorn", "src.main:app", "--host", "0.0.0.0", "--port", "8000")
+var llmServer = builder.AddUvApp("llm-server", "../../servers/llm-server", "-m", "src.main", "--host", "0.0.0.0", "--port", "8000")
     .WithHttpEndpoint(name: "http", port: 8000, env: "PORT")
     .WithEnvironment("PYTHONPATH", "src")
     .WithExternalHttpEndpoints();
