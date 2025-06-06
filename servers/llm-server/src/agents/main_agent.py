@@ -3,13 +3,15 @@
 from typing import Annotated, TypedDict, List
 from langgraph.graph import StateGraph, END
 from langgraph.prebuilt import create_react_agent
-from langchain_core.messages import HumanMessage, AIMessage, SystemMessage, add_messages
+from langchain_core.messages import HumanMessage, AIMessage, SystemMessage
+from langgraph.graph import add_messages
 from langchain_anthropic import ChatAnthropic
 from langchain_openai import ChatOpenAI
 import os
 
 from ..tools.web_search import web_search, web_search_news, web_search_academic
 from ..tools.github import github_search_repositories, github_get_repository_info, github_search_issues
+from ..services.config import get_settings
 
 class AgentState(TypedDict):
     """State definition for the agent workflow"""
@@ -23,23 +25,26 @@ class AgentService:
     """Service for managing LangGraph agents"""
     
     def __init__(self):
+        self.settings = get_settings()
         self.llm = self._get_llm()
         self.tools = self._get_tools()
         self.agent = self._create_agent()
     
     def _get_llm(self):
         """Initialize the LLM based on available API keys"""
-        if os.getenv("ANTHROPIC_API_KEY"):
+        if self.settings.anthropic_api_key:
             return ChatAnthropic(
                 model="claude-3-5-sonnet-20241022",
                 temperature=0.7,
-                max_tokens=4096
+                max_tokens=4096,
+                api_key=self.settings.anthropic_api_key
             )
-        elif os.getenv("OPENAI_API_KEY"):
+        elif self.settings.openai_api_key:
             return ChatOpenAI(
                 model="gpt-4o",
                 temperature=0.7,
-                max_tokens=4096
+                max_tokens=4096,
+                api_key=self.settings.openai_api_key
             )
         else:
             raise ValueError("No valid API key found for LLM providers")
@@ -86,8 +91,7 @@ When using tools:
         # Create the ReAct agent
         agent = create_react_agent(
             model=self.llm,
-            tools=self.tools,
-            state_modifier=system_message
+            tools=self.tools
         )
         
         return agent

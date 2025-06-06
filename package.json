@@ -6,7 +6,9 @@
     "build": "react-router build",
     "dev": "react-router dev",
     "start": "react-router-serve ./build/server/index.js",
-    "typecheck": "react-router typegen && tsc"
+    "typecheck": "react-router typegen && tsc",
+    "aspire": "dotnet run --project aspire/aspire.AppHost",
+    "llm-server": "cd servers/llm-server && uv run -m src.main"
   },
   "dependencies": {
     "@radix-ui/react-avatar": "^1.1.10",

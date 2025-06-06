@@ -1,15 +1,12 @@
 #pragma warning disable EXTEXP0018 // Type is for evaluation purposes only
-#pragma warning disable ASPIREHOSTINGPYTHON001 // AddUvicornApp is experimental
+#pragma warning disable ASPIREHOSTINGPYTHON001 // AddUvApp is experimental
 
 var builder = DistributedApplication.CreateBuilder(args);
 
 // Add the Python UV LLM Server using Community Toolkit
-var llmServer = builder.AddUvicornApp("llm-server", "../../servers/llm-server", "src.main:app")
+var llmServer = builder.AddUvApp("llm-server", "../../servers/llm-server", "run", "uvicorn", "src.main:app", "--host", "0.0.0.0", "--port", "8000")
     .WithHttpEndpoint(name: "http", port: 8000, env: "PORT")
     .WithEnvironment("PYTHONPATH", "src")
-    .WithEnvironment("UVICORN_HOST", "0.0.0.0")
-    .WithEnvironment("UVICORN_PORT", "8000")
-    .WithArgs("--host", "0.0.0.0", "--port", "8000")
     .WithExternalHttpEndpoints();
 
 // Add a node.js application that uses Dockerfile to be published

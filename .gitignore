@@ -5,3 +5,8 @@
 /.react-router/
 /build/
 .pnpm-store
+
+# Environment files
+.env
+.env.local
+.env.*.local
