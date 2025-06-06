@@ -1,9 +1,9 @@
-import { createOpenAI } from '@ai-sdk/openai';
+import { openai, createOpenAI } from '@ai-sdk/openai';
 import { generateText, streamText } from 'ai';
 import { z } from 'zod';
 
 // Configure the OpenAI-compatible client to point to our LLM server
-const openai = createOpenAI({
+const openaiClient = createOpenAI({
   baseURL: 'http://localhost:8000',
   apiKey: 'dummy-key', // Not needed for our local server, but required by the client
 });
@@ -31,7 +31,7 @@ export async function generateChatResponse(
 ) {
   try {
     const result = await generateText({
-      model: openai(options.model || 'claude-3-sonnet-20240229'),
+      model: openaiClient(options.model || 'claude-3-sonnet-20240229'),
       messages,
       temperature: options.temperature || 0.7,
       maxTokens: options.maxTokens || 2000,
@@ -59,7 +59,7 @@ export async function streamChatResponse(
 ) {
   try {
     const result = await streamText({
-      model: openai(options.model || 'claude-3-sonnet-20240229'),
+      model: openaiClient(options.model || 'claude-3-sonnet-20240229'),
       messages,
       temperature: options.temperature || 0.7,
       maxTokens: options.maxTokens || 2000,
@@ -72,32 +72,36 @@ export async function streamChatResponse(
   }
 }
 
-// Create a response using the responses API
+// Create and persist a response using the OpenAI Responses API (AI SDK)
+// This will generate a response and persist it using the Responses API.
+// NOTE: baseURL and apiKey must be set globally for local dev (see AI SDK docs).
 export async function createResponse(
-  responseText: string,
+  prompt: string,
   conversationId?: string,
   parentMessageId?: string,
   metadata?: Record<string, any>
 ): Promise<ResponseObject> {
   try {
-    const response = await fetch('http://localhost:8000/responses', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        response: responseText,
-        conversation_id: conversationId,
-        parent_message_id: parentMessageId,
-        metadata,
-      }),
+    // Build providerOptions only with defined values
+    const providerOptions: Record<string, any> = {};
+    if (conversationId !== undefined) providerOptions.conversationId = conversationId;
+    if (parentMessageId !== undefined) providerOptions.parentMessageId = parentMessageId;
+    if (metadata !== undefined) providerOptions.metadata = metadata;
+
+    const result = await generateText({
+      model: openai.responses('gpt-4.1'),
+      prompt,
+      providerOptions: Object.keys(providerOptions).length > 0 ? { openai: providerOptions } : undefined,
     });
-
-    if (!response.ok) {
-      throw new Error(`Failed to create response: ${response.statusText}`);
-    }
-
-    return await response.json();
+    // The providerMetadata contains the responseId and other info
+    return {
+      id: String(result.providerMetadata?.openai?.responseId ?? ''),
+      created: Date.now() / 1000,
+      response: result.text,
+      conversation_id: conversationId,
+      parent_message_id: parentMessageId,
+      metadata,
+    };
   } catch (error) {
     console.error('Error creating response:', error);
     throw error;
