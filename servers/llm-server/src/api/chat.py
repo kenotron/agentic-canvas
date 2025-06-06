@@ -13,6 +13,9 @@ from ..services.config import get_settings
 
 router = APIRouter()
 
+from ..services.db import SessionLocal, Chat, Message
+from sqlalchemy.orm import Session
+
 # Configure LiteLLM for direct API usage
 litellm.drop_params = True  # Drop unsupported parameters instead of erroring
 litellm.set_verbose = False  # Reduce logging
@@ -144,8 +147,7 @@ async def create_chat_completion(
             detail=f"LiteLLM completion error: {str(e)}"
         )
 
-# In-memory storage for responses (in production, use a database)
-responses_storage: Dict[str, ResponseObject] = {}
+# Database-backed storage for responses
 
 @router.post("/responses", response_model=ResponseObject)
 async def create_response(
@@ -154,34 +156,40 @@ async def create_response(
 ):
     """
     Create a response (OpenAI Responses API compatible).
-    
-    This endpoint stores responses for later retrieval and analysis.
-    Compatible with OpenAI's Responses API specification.
+    Stores responses in the database.
     """
-    
     try:
-        # Generate unique ID for the response
-        response_id = f"resp_{int(time.time())}_{hash(request.response) % 10000:04d}"
-        current_time = int(time.time())
-        
-        # Create response object
+        db: Session = SessionLocal()
+        # Find or create chat
+        chat = None
+        if request.conversation_id:
+            chat = db.query(Chat).filter_by(id=request.conversation_id).first()
+        if not chat:
+            chat = Chat(id=request.conversation_id, title=None)
+            db.add(chat)
+            db.commit()
+            db.refresh(chat)
+        # Create message
+        message = Message(
+            chat_id=chat.id,
+            role="assistant",
+            content=request.response,
+        )
+        db.add(message)
+        db.commit()
+        db.refresh(message)
+        # Build response object
         response_obj = ResponseObject(
-            id=response_id,
-            created=current_time,
-            response=request.response,
-            conversation_id=request.conversation_id,
+            id=str(message.id),
+            created=int(message.created_at.timestamp()),
+            response=message.content,
+            conversation_id=str(chat.id),
             parent_message_id=request.parent_message_id,
             metadata=request.metadata
         )
-        
-        # Store response (in production, use a database)
-        responses_storage[response_id] = response_obj
-        
-        # Log for analytics/training
+        db.close()
         print(f"Response created: {response_obj.model_dump()}")
-        
         return response_obj
-        
     except Exception as e:
         raise HTTPException(
             status_code=500,
@@ -196,18 +204,25 @@ async def get_response(
     """
     Retrieve a specific response by ID (OpenAI Responses API compatible).
     """
-    
     try:
-        if response_id not in responses_storage:
+        db: Session = SessionLocal()
+        message = db.query(Message).filter_by(id=response_id).first()
+        if not message:
+            db.close()
             raise HTTPException(
                 status_code=404,
                 detail=f"Response {response_id} not found"
             )
-        
-        return responses_storage[response_id]
-        
-    except HTTPException:
-        raise
+        response_obj = ResponseObject(
+            id=str(message.id),
+            created=int(message.created_at.timestamp()),
+            response=message.content,
+            conversation_id=str(message.chat_id),
+            parent_message_id=None,
+            metadata=None
+        )
+        db.close()
+        return response_obj
     except Exception as e:
         raise HTTPException(
             status_code=500,
@@ -224,42 +239,32 @@ async def list_responses(
     """
     List responses with optional filtering (OpenAI Responses API compatible).
     """
-    
     try:
-        # Filter responses based on parameters
-        filtered_responses = list(responses_storage.values())
-        
-        # Filter by conversation_id if provided
+        db: Session = SessionLocal()
+        query = db.query(Message)
         if conversation_id:
-            filtered_responses = [
-                r for r in filtered_responses
-                if r.conversation_id == conversation_id
-            ]
-        
-        # Sort by creation time (newest first)
-        filtered_responses.sort(key=lambda r: r.created, reverse=True)
-        
-        # Apply pagination
-        if after:
-            try:
-                after_index = next(
-                    i for i, r in enumerate(filtered_responses)
-                    if r.id == after
-                )
-                filtered_responses = filtered_responses[after_index + 1:]
-            except StopIteration:
-                # If 'after' ID not found, return empty list
-                filtered_responses = []
-        
-        # Limit results
-        has_more = len(filtered_responses) > limit
-        filtered_responses = filtered_responses[:limit]
-        
+            query = query.filter_by(chat_id=conversation_id)
+        query = query.order_by(Message.created_at.desc())
+        messages = query.all()
+        # Pagination (simple, not using 'after' for now)
+        has_more = len(messages) > limit
+        messages = messages[:limit]
+        response_list = [
+            ResponseObject(
+                id=str(m.id),
+                created=int(m.created_at.timestamp()),
+                response=m.content,
+                conversation_id=str(m.chat_id),
+                parent_message_id=None,
+                metadata=None
+            )
+            for m in messages
+        ]
+        db.close()
         return ResponseList(
-            data=filtered_responses,
+            data=response_list,
             has_more=has_more
         )
-        
     except Exception as e:
         raise HTTPException(
             status_code=500,
@@ -274,20 +279,19 @@ async def delete_response(
     """
     Delete a specific response by ID (OpenAI Responses API compatible).
     """
-    
     try:
-        if response_id not in responses_storage:
+        db: Session = SessionLocal()
+        message = db.query(Message).filter_by(id=response_id).first()
+        if not message:
+            db.close()
             raise HTTPException(
                 status_code=404,
                 detail=f"Response {response_id} not found"
             )
-        
-        del responses_storage[response_id]
-        
+        db.delete(message)
+        db.commit()
+        db.close()
         return {"deleted": True}
-        
-    except HTTPException:
-        raise
     except Exception as e:
         raise HTTPException(
             status_code=500,

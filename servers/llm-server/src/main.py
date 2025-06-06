@@ -24,6 +24,9 @@ async def lifespan(app: FastAPI):
     """Application lifespan events"""
     # Startup
     print("🚀 Starting Agentic Canvas LLM Server...")
+    # Initialize database
+    from .services.db import init_db
+    init_db()
     yield
     # Shutdown
     print("🛑 Shutting down Agentic Canvas LLM Server...")
@@ -51,7 +54,7 @@ def create_app() -> FastAPI:
     )
     
     # Include routers
-    app.include_router(chat_router, prefix="/v1", tags=["chat"])
+    app.include_router(chat_router, tags=["chat"])  # Remove /v1 prefix for direct access
     app.include_router(agents_router, prefix="/agents", tags=["agents"])
     app.include_router(tools_router, prefix="/tools", tags=["tools"])
     

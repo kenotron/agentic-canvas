@@ -1,5 +1,5 @@
 import type { Route } from "./+types/chat.$conversationId";
-import { ChatContainer } from "../components/chat/ChatContainer";
+import { EnhancedChatContainer } from "../components/chat/EnhancedChatContainer";
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -9,5 +9,5 @@ export function meta({}: Route.MetaArgs) {
 }
 
 export default function Chat() {
-  return <ChatContainer />;
+  return <EnhancedChatContainer />;
 }
