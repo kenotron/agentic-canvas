@@ -1,22 +1,35 @@
-# User Story 6: Workflow Automation
+# User Story: Workflow Automation
 
-## Description
-As a user, I want to create automated workflows that trigger actions based on data events so that I can reduce manual tasks.
+## Overview
+As a user, I want to automate repetitive dashboard tasks and data processing workflows so that I can save time and reduce manual effort.
 
-## Acceptance Criteria
-- Users can define workflow triggers (data updates, time-based)
-- Users can add multiple steps to workflows (data fetch, transform, API call, email)
-- Workflows can be scheduled and executed automatically
-- Users can monitor workflow execution status
-- Users can pause and resume workflows
+## Roo Mode Orchestration
+**Architect Mode**: Designs the workflow automation system architecture including scheduling engines, execution pipelines, and integration points
+**Designer Mode**: Creates intuitive workflow automation interfaces with drag-and-drop components and visual flow builders
+**Code Mode**: Implements workflow automation logic, scheduling, and execution engines
+
+## Implementation Approach
+1. Design workflow creation UI with visual flow editors
+2. Implement drag-and-drop interface for building automation steps
+3. Create scheduling and trigger management components
+4. Build beautiful workflow monitoring dashboards
+5. Add step-by-step configuration for automation rules
+6. Implement real-time workflow status tracking
+7. Design responsive workflow interfaces that work on all devices
 
 ## Technical Details
-- Implement workflow definition UI in React
-- Create workflow engine with task queue processing
-- Set up workflow execution monitoring
-- Add conditional logic support for workflows
-- Implement workflow step types (data fetch, transform, email, API call)
-- Store workflow configurations in PostgreSQL database
+- Use shadcn/ui components for workflow interface elements
+- Apply Tailwind CSS for consistent, responsive styling
+- Integrate with lucide-react icons for workflow visualization
+- Use React Query for managing workflow states and execution history
+- Implement toast notifications for workflow start/stop/success/failure events
+- Add proper error handling and retry mechanisms
+- Create beautiful status indicators and progress tracking
 
-## Priority
-Medium
+## Success Criteria
+- Users can create automated workflows visually
+- Workflow scheduling works correctly
+- Automation steps can be configured easily
+- Workflow execution status is visible in real-time
+- Error handling provides clear feedback for failed workflows
+- UI is responsive and accessible across all devices

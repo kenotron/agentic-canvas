@@ -1,22 +1,35 @@
-# User Story 3: Add Data Widgets
+# User Story: Add Data Widgets
 
-## Description
-As a user, I want to add data widgets to my dashboards so that I can visualize and monitor my business metrics.
+## Overview
+As a user, I want to add various data visualization widgets to my dashboard so that I can monitor and analyze my information effectively.
 
-## Acceptance Criteria
-- Users can add different types of widgets (charts, tables, KPIs)
-- Widgets can be configured with specific data sources
-- Users can position and resize widgets on the dashboard canvas
-- Widgets display real-time data updates
-- Users can remove widgets from dashboards
+## Roo Mode Orchestration
+**Architect Mode**: Designs the widget system architecture including API endpoints for data sources and data flow patterns
+**Designer Mode**: Creates beautiful chart and data display components using recharts and shadcn/ui with Tailwind CSS styling
+**Code Mode**: Implements widget data fetching, rendering logic, and configuration
+
+## Implementation Approach
+1. Create reusable chart components (line, bar, pie) using recharts
+2. Implement data table widgets with sorting and filtering
+3. Design metric cards for key performance indicators
+4. Build widget configuration interfaces
+5. Add data loading states and skeletons
+6. Implement responsive charts that adapt to container size
+7. Create beautiful visualizations with consistent styling
 
 ## Technical Details
-- Implement widget creation UI in React
-- Create widget configuration forms
-- Set up drag-and-drop positioning system
-- Integrate with Supabase Realtime for live updates
-- Implement widget data fetching using React Query
-- Add widget type selection and customization options
+- Use recharts library for data visualization components
+- Implement shadcn/ui card, table, and form components
+- Apply Tailwind CSS for consistent styling across widgets
+- Use lucide-react icons for widget controls
+- Integrate with React Query for data fetching
+- Add proper loading states and error boundaries
+- Implement toast notifications for data-related feedback
 
-## Priority
-High
+## Success Criteria
+- Users can add different types of widgets to dashboards
+- Charts render properly with responsive design
+- Data tables support sorting and filtering
+- Widgets display loading states appropriately
+- Error handling works for failed data loads
+- Visualizations are accessible and WCAG compliant

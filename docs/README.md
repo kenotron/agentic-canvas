@@ -13,3 +13,19 @@ This directory contains all project documentation for the Dashboard Workspace Ap
 ## Architecture Diagrams
 
 - [`diagrams/`](./diagrams/) - Mermaid diagrams and system architecture visuals
+
+## Vendor Libraries
+
+- [`vendor/reactquery.md`](./vendor/reactquery.md) - React Query documentation and usage patterns
+- [`vendor/supabase.md`](./vendor/supabase.md) - Supabase integration and configuration
+- [`vendor/valtio.md`](./vendor/valtio.md) - Valtio state management documentation
+
+## Roo Modes
+
+- **Architect Mode**: System design, API architecture, data flow patterns
+- **Designer Mode**: UI component design, layout grammar, Tailwind styling
+- **Code Mode**: Implementation logic, hooks, state management, integration
+
+## User Stories
+
+- [`stories/`](./stories/) - User stories and feature specifications
